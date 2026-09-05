@@ -1,14 +1,26 @@
 import {createComparison, defaultRules} from "../lib/compare.js";
 
-// @todo: #4.3 — настроить компаратор
+const compare = createComparison(defaultRules);
 
 export function initFiltering(elements, indexes) {
-    // @todo: #4.1 — заполнить выпадающие списки опциями
+    Object.entries(indexes).forEach(([name, values]) => {
+        elements[name].append(
+            ...Object.values(values).map(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                return option;
+            })
+        );
+    });
 
     return (data, state, action) => {
-        // @todo: #4.2 — обработать очистку поля
+        if (action && action.name === 'clear') {
+            const field = action.dataset.field;
+            action.parentElement.querySelector('input').value = '';
+            state[field] = '';
+        }
 
-        // @todo: #4.5 — отфильтровать данные используя компаратор
-        return data;
+        return data.filter(row => compare(row, state));
     }
 }
